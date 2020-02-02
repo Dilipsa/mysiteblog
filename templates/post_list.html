@@ -1,0 +1,10 @@
+<h1><center><marquee><a href="{% url 'post_new' %}">create your new blog post </a></marquee></ceter></h1>
+{% for post in object_list %}
+{# <a href = "{% url 'post-detail' slug=slug %}"> {{post}} <br></a> #}
+
+<h4><a href = "{{ post.get_absolute_url }}" >{{ post.author }} </a></h4>
+title = {{ post.author }} <br>
+text = {{ post.text }} <br><br><br>
+
+
+{% endfor %}
