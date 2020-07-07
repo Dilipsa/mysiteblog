@@ -1,5 +1,69 @@
-title = {{ object.title}}  <a href="{% url 'post_edit' slug=post.slug %}">edit</a><br>
-text = {{ object.text }} <br>
-slug = {{ object.slug }}<br>
-created = {{ object.created_date }}<br>
-published = {{ object.published_date }}<br>
+{% extends 'base.html' %}
+{% load extras %}
+{% block content %}
+<div class="container">
+    title = {{ post.title}} <a href="{% url 'blog:post_edit' slug=post.slug %}">edit</a><br>
+    text = {{ post.text }} <br>
+    slug = {{ post.slug }}<br>
+    created = {{ post.created_date }}<br>
+    published = {{ post.published_date }}<br>
+</div>
+<hr>
+
+<div class="container">
+    <h4>Post your comments</h4>
+    <form action="{% url 'blog:postComment' slug=post.slug %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="comment" placeholder="Enter comment here">
+        <input type="hidden" name="postSno" value="{{ post.sno }}">
+        <input type="hidden" name="parentSno" value="">
+        <input type="submit" value="submit">
+    </form>
+</div>
+<hr>
+
+<div class="container">
+    <h2>Comments by users</h2>
+    <div class="row">
+        {% for comment in comments %}
+        <div class="col-2 bg-light">
+            ({{ forloop.counter }}){{ comment.user.username }} on {{ comment.timestamp }}
+        </div>
+        <div class="col-10">
+            comment:{{ comment.comment }}
+
+            <div class="row">
+                <div class="col-9 offset-1">
+                    <div class="reply mx-auto">
+                        <div class="reply mx-auto my-1">
+                            <a class="btn btn-sm btn-secondary" data-toggle="collapse" href="#replybox{{comment.sno}}"
+                               role="button"
+                               aria-expanded="false" aria-controls="replybox{{comment.sno}}">
+                                Reply
+                            </a>
+                            <div class="collapse" id="replybox{{comment.sno}}">
+                                <div class="card card-body my-2">
+                                    <form action="{% url 'blog:postComment' slug=post.slug %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="text" name="comment" placeholder="Your reply here">
+                                        <input type="hidden" name="parentSno" value="{{ comment.sno }}">
+                                        <input type="hidden" name="postSno" value="{{ post.sno }}">
+                                        <input type="submit" value="submit">
+                                    </form>
+                                    <div class="replies bg-light my-2"><h6>{% if reply %}Replies{% endif %}</h6>
+                                        {% for reply in replyDict|get_val:comment.sno %}
+                                        ({{ forloop.counter }}){{ reply.user }} replied->{{ reply.comment }}<br>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
